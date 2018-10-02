@@ -72,3 +72,57 @@ Default option is `<left> <top> <width> <height>`.
 ### Xml files
 
 This basically follows the conventions of Pascal Voc annotation scheme. These xml files can be produces by using for example [labelImg](https://github.com/tzutalin/labelImg) on some images and creating manually the annotation.
+
+An xml has roughly this form:
+```
+<annotation>
+	<folder>all</folder>
+	<filename>000.jpg</filename>
+	<path>groundtruths-xml/000.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>400</width>
+		<height>286</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>person</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>274</xmin>
+			<ymin>66</ymin>
+			<xmax>351</xmax>
+			<ymax>266</ymax>
+		</bndbox>
+	</object>
+	<object>
+		<name>person</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>221</xmin>
+			<ymin>62</ymin>
+			<xmax>269</xmax>
+			<ymax>224</ymax>
+		</bndbox>
+	</object>
+</annotation>
+```
+
+The main parts of the xml file that are used in this process are:
+
+* `filename` which correspond to the name of the image
+* `object/name` which correspond to each bbox class
+* `object/bndbox/xmin` which corresponds to the bbox left-most coordinate
+* `object/bndbox/ymin` which corresponds to the bbox top-most coordinate
+* `object/bndbox/xmax` which corresponds to the bbox right-most coordinate
+* `object/bndbox/ymax` which corresponds to the bbox bottom-most coordinate
+
+and for the Detection xml files (these has to be created somehow though):
+* `object/score` which corresponds to the confidence of the detected bbox.
