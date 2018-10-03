@@ -136,11 +136,11 @@ and for the Detection xml files (these has to be created somehow though):
 | `-g`,<br>`--gt-folder` | folder that contains the ground truth bounding boxes files | `python pascalvoc.py -g /home/whatever/my_groundtruths/` | `/Object-Detection-Metrics/groundtruths`|
 | `-d`,<br>`--det-folder` | folder that contains your detected bounding boxes files | `python pascalvoc.py -d /home/whatever/my_detections/` | `/Object-Detection-Metrics/detections/`|
 | `-t`,<br>`--threshold` | IOU thershold that tells if a detection is TP or FP | `python pascalvoc.py -t 0.75` | `0.50` |
-| `-gt-format` | format of the coordinates of the ground truth bounding boxes [**\***](#asterisk) | `python pascalvoc.py -gt-format xyrb` | `xywh` |
-| `-det-format` | format of the coordinates of the detected bounding boxes [**\***](#asterisk) | `python pascalvoc.py -det-format xyrb` | `xywh` | |
-| `-gt-coords` | reference of the ground truth bounding bounding box coordinates.<br>If the annotated coordinates are relative to the image size (as used in YOLO), set it to `rel`.<br>If the coordinates are absolute values, not depending to the image size, set it to `abs` |  `python pascalvoc.py -gt-coords rel` | `abs` |
-| `-det-coords` | reference of the detected bounding bounding box coordinates.<br>If the coordinates are relative to the image size (as used in YOLO), set it to `rel`.<br>If the coordinates are absolute values, not depending to the image size, set it to `abs` | `python pascalvoc.py -det-coords rel` | `abs` |
-| `-img-size ` | image size in the format `width,height` <int,int>.<br>Required if `-gtcoords` or `-detcoords` is set to `rel` | `python pascalvoc.py -img-size 600,400` |
+| `--gt-format` | format of the coordinates of the ground truth bounding boxes [**\***](#asterisk) | `python pascalvoc.py --gt-format xyrb` | `xywh` |
+| `--det-format` | format of the coordinates of the detected bounding boxes [**\***](#asterisk) | `python pascalvoc.py --det-format xyrb` | `xywh` | |
+| `--gt-coords` | reference of the ground truth bounding bounding box coordinates.<br>If the annotated coordinates are relative to the image size (as used in YOLO), set it to `rel`.<br>If the coordinates are absolute values, not depending to the image size, set it to `abs` |  `python pascalvoc.py --gt-coords rel` | `abs` |
+| `--det-coords` | reference of the detected bounding bounding box coordinates.<br>If the coordinates are relative to the image size (as used in YOLO), set it to `rel`.<br>If the coordinates are absolute values, not depending to the image size, set it to `abs` | `python pascalvoc.py --det-coords rel` | `abs` |
+| `--img-size ` | image size in the format `width,height` <int,int>.<br>Required if `--gt-coords` or `--det-coords` is set to `rel` | `python pascalvoc.py --img-size 600,400` |
 | `-s`,<br>`--savepath` | folder where the plots are saved | `python pascalvoc.py -s /home/whatever/my_results/` | `Object-Detection-Metrics/results/` |
 | `-n`,<br>`--noplot` | if present no plot is shown during execution | `python pascalvoc.py -n` | not presented.<br>Therefore, plots are shown |
 | `--accepted-classes` | if present only members belonging to those classes are evaluated (other members are ignored) | `python pascalvoc.py --accepted-classes person car` | empty list.<br>Meaning all classes are taken into consideration |

@@ -139,7 +139,7 @@ def validate_formats(arg_format, arg_name, errors):
     elif arg_format == 'xyrb':
         return BBFormat.XYX2Y2
     elif arg_format is None:
-        return BBFormat.XYWH  # default when nothing is passed
+        return BBFormat.XYX2Y2  # default when nothing is passed
     else:
         errors.append(
             'argument %s: invalid value. It must be either \'xywh\' or \'xyrb\'' % arg_name)
