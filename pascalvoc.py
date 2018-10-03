@@ -5,16 +5,14 @@
 #  * Precision x Recall curve       ---->       used by VOC PASCAL 2012)                  #
 #  * Average Precision (AP)         ---->       used by VOC PASCAL 2012)                  #
 #                                                                                         #
-# Developed by: Rafael Padilla (rafael.padilla@smt.ufrj.br)
-# Modified by: George Orfanidis (g.orfanidis@iti.gr)                               #
+# Developed by: Rafael Padilla (rafael.padilla@smt.ufrj.br)                               #
+# Modified by: George Orfanidis (g.orfanidis@iti.gr)                                      #
 #        SMT - Signal Multimedia and Telecommunications Lab                               #
 #        COPPE - Universidade Federal do Rio de Janeiro                                   #
-#        Last modification: 1st Oct 2018                                                 #
+#        Last modification: 1st Oct 2018                                                  #
 ###########################################################################################
 # v3 separates completely text with xml files
 
-# import os
-# print(os.path.realpath(__file__))
 import os
 import argparse
 # from argparse import RawTextHelpFormatter
@@ -22,10 +20,6 @@ import glob
 import shutil
 import sys
 import xml.etree.ElementTree as ET
-
-for i, p in enumerate(sys.path):
-    if p == '/home/gorfanidis/models':
-        del sys.path[i]
 
 # import _init_paths
 
