@@ -30,8 +30,6 @@ libPath = os.path.join(currentPath, 'lib')
 if libPath not in sys.path:
     sys.path.insert(0, libPath)
 
-# from BoundingBox import BoundingBox
-# from BoundingBoxes import BoundingBoxes
 from Evaluator import *
 from utils_eval import BBFormat
 from utils_eval import BBType
@@ -347,19 +345,10 @@ def read_xml_file(file_path, is_gt, coordType, bbFormat, all_bounding_boxes=None
     :param accepted_classes:
     :return:
     """
-    # if file_path.endswith('jpg'):
-    #     file_path = os.path.join(os.path.dirname(file_path), xml_folder, '{}.xml'
-    #                              .format(os.path.basename(file_path).rsplit('.', 1)[0]))
-    # if all_bounding_boxes is None:
-    #     all_bounding_boxes = BoundingBoxes()
-    # if all_classes is None:
-    #     all_classes = []
     tree = ET.parse(file_path)
     filename = tree.find('filename').text.rsplit('.', 1)[0]
     img_size = tree.find('size')
     objects = tree.findall('object')
-    # bboxes = np.ndarray(shape=(len(objects), 4), dtype=int)
-    # labels = []
     for i, obj in enumerate(objects):
         if accepted_classes and obj.find('name').text not in accepted_classes:
             continue
@@ -392,13 +381,7 @@ def read_xml_file(file_path, is_gt, coordType, bbFormat, all_bounding_boxes=None
         if obj.find('name').text not in all_classes:
             all_classes.append(obj.find('name').text)
 
-        # if width_first:
-        #     bboxes[i, :] = [float(obj.find('bndbox').find('xmin').text), float(obj.find('bndbox').find('ymin').text),
-        #                     float(obj.find('bndbox').find('xmax').text), float(obj.find('bndbox').find('ymax').text)]
-        # else:
-        #     bboxes[i, :] = [float(obj.find('bndbox').find('ymin').text), float(obj.find('bndbox').find('xmin').text),
-        #                     float(obj.find('bndbox').find('ymax').text), float(obj.find('bndbox').find('xmax').text)]
-    return all_bounding_boxes, all_classes  # bboxes, labels
+    return all_bounding_boxes, all_classes
 
 
 VERSION = '0.3 (beta)'
@@ -409,77 +392,63 @@ def validate_args(args):
 
     :param args:
     """
-    iouThreshold = args.iouThreshold
-
     # Arguments validation
     errors = []
     # Validate formats
-    args.gtFormat = validate_formats(args.gtFormat, '-gtformat', errors)
-    args.detFormat = validate_formats(args.detFormat, '-detformat', errors)
+    args.gtFormat = validate_formats(args.gtFormat, '--gt-format', errors)
+    args.detFormat = validate_formats(args.detFormat, '--det-format', errors)
     # Validate mandatory (paths)
     current_path = os.path.dirname(os.path.abspath(__file__))
     # Groundtruth folder
-    if validate_mandatory_args(args.gtFolder, '-gt/--gtfolder', errors):
-        args.gtFolder = ValidatePaths(args.gtFolder, '-gt/--gtfolder', errors)
+    if validate_mandatory_args(args.gtFolder, '-gt/--gt-folder', errors):
+        args.gtFolder = ValidatePaths(args.gtFolder, '-gt/--gt-folder', errors)
     else:
         errors.pop()
-        args.gtFolder = os.path.join(current_path, 'groundtruths')
+        args.gtFolder = os.path.join(current_path, 'groundtruths-xml')
         if os.path.isdir(args.gtFolder) is False:
             errors.append('folder %s not found' % args.gtFolder)
     # Coordinates types
-    args.gtCoordType = validate_coordinates_types(args.gtCoordinates, '-gtCoordinates', errors)
-    args.detCoordType = validate_coordinates_types(args.detCoordinates, '-detCoordinates', errors)
-    imgSize = (0, 0)
+    args.gtCoordType = validate_coordinates_types(args.gtCoordinates, '--gt-coords', errors)
+    args.detCoordType = validate_coordinates_types(args.detCoordinates, '-det-ccords', errors)
     if args.gtCoordType == CoordinatesType.Relative:  # Image size is required
-        args.imgSize = validate_image_size(args.imgSize, '-imgsize', '-gtCoordinates', errors)
+        args.imgSize = validate_image_size(args.imgSize, '-imgsize', '--gt-coords', errors)
     if args.detCoordType == CoordinatesType.Relative:  # Image size is required
-        args.imgSize = validate_image_size(args.imgSize, '-imgsize', '-detCoordinates', errors)
+        args.imgSize = validate_image_size(args.imgSize, '-imgsize', '--det-coords', errors)
     # Detection folder
-    if validate_mandatory_args(args.detFolder, '-det/--detfolder', errors):
-        args.detFolder = ValidatePaths(args.detFolder, '-det/--detfolder', errors)
+    if validate_mandatory_args(args.detFolder, '-det/--det-folder', errors):
+        args.detFolder = ValidatePaths(args.detFolder, '-det/--det-folder', errors)
     else:
         errors.pop()
-        args.detFolder = os.path.join(current_path, 'detections')
+        args.detFolder = os.path.join(current_path, 'detections-xml')
         if os.path.isdir(args.detFolder) is False:
             errors.append('folder %s not found' % args.detFolder)
     # Validate savePath
     if args.savePath is not None:
-        args.savePath = ValidatePaths(args.savePath, '-sp/--savepath', errors)
+        args.savePath = ValidatePaths(args.savePath, '-s/--save-path', errors)
         args.savePath = os.path.join(args.savePath, 'results')
     else:
         args.savePath = os.path.join(current_path, 'results')
     # If error, show error messages
     if len(errors) is not 0:
-        print("""usage: Object Detection Metrics [-h] [-v] [-gt] [-det] [-t] [-gtformat]
-                                    [-detformat] [-save]""")
+        print("""usage: Object Detection Metrics [-h] [-v] [-g] [-d] [-t] [--gt-format]
+                                    [--det-format] [-save]""")
         print('Object Detection Metrics: error(s): ')
         [print(e) for e in errors]
         sys.exit()
 
     return args
-    # return gtFolder, current_path, gtFormat, detFormat, gtCoordType
 
 
 def main():
     """
     The main function
     """
-    # print('iou_threshold= %f' % iou_threshold)
-    # print('savePath = %s' % savePath)
-    # print('gt_format = %s' % gt_format)
-    # print('det_format = %s' % det_format)
-    # print('gt_folder = %s' % gt_folder)
-    # print('det_folder = %s' % det_folder)
-    # print('gt_coord_type = %s' % gt_coord_type)
-    # print('det_coord_type = %s' % det_coord_type)
-    # print('show_plot %s' % show_plot)
 
     args = get_arguments()
     args = validate_args(args)
 
     gt_folder = args.gtFolder
     det_folder = args.detFolder
-    # current_path = args.currentPath
     det_format = args.detFormat
     gt_format = args.gtFormat
     gt_coord_type = args.gtCoordinates
@@ -536,7 +505,6 @@ def main():
             prec = ['%.2f' % p for p in precision]
             rec = ['%.2f' % r for r in recall]
             ap_str = "{0:.5f}".format(ap)
-            # ap_str = str('%.2f' % ap) #AQUI
             print('AP: %s (%s)' % (ap_str, cl))
             f.write('\n\nClass: %s' % cl)
             f.write('\nAP: %s' % ap_str)

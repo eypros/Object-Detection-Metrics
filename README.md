@@ -11,7 +11,8 @@ This a fork of the original **Metrics for object detection** developped by [Rafa
 - [How to use this project](#how-to-use-this-project)
     - [Text files](#text-files)
     - [Xml files](#xml-files)
-- [References](#references)
+- [Optional arguments](#optional-arguments)
+- [Example of use](#examples-of-use)
  
 ## What this project has to offer?
 
@@ -133,11 +134,11 @@ and for the Detection xml files (these has to be created somehow though):
 |:-------------:|:-----------:|:-----------:|:-----------:|
 | `-h`,<br>`--help ` |	show help message | `python pascalvoc.py -h` | |
 |  `-v`,<br>`--version` | check version | `python pascalvoc.py -v` | |
-| `-g`,<br>`--gt-folder` | folder that contains the ground truth bounding boxes files | `python pascalvoc.py -g /home/whatever/my_groundtruths/` | `/Object-Detection-Metrics/groundtruths`|
-| `-d`,<br>`--det-folder` | folder that contains your detected bounding boxes files | `python pascalvoc.py -d /home/whatever/my_detections/` | `/Object-Detection-Metrics/detections/`|
+| `-g`,<br>`--gt-folder` | folder that contains the ground truth bounding boxes files | `python pascalvoc.py -g /home/whatever/my_groundtruths/` | `/Object-Detection-Metrics/groundtruths-xml/`|
+| `-d`,<br>`--det-folder` | folder that contains your detected bounding boxes files | `python pascalvoc.py -d /home/whatever/my_detections/` | `/Object-Detection-Metrics/detections-xml/`|
 | `-t`,<br>`--threshold` | IOU thershold that tells if a detection is TP or FP | `python pascalvoc.py -t 0.75` | `0.50` |
-| `--gt-format` | format of the coordinates of the ground truth bounding boxes [**\***](#asterisk) | `python pascalvoc.py --gt-format xyrb` | `xywh` |
-| `--det-format` | format of the coordinates of the detected bounding boxes [**\***](#asterisk) | `python pascalvoc.py --det-format xyrb` | `xywh` | |
+| `--gt-format` | format of the coordinates of the ground truth bounding boxes [**\***](#asterisk) | `python pascalvoc.py --gt-format xyrb` | `xyrb` |
+| `--det-format` | format of the coordinates of the detected bounding boxes [**\***](#asterisk) | `python pascalvoc.py --det-format xyrb` | `xyrb` | |
 | `--gt-coords` | reference of the ground truth bounding bounding box coordinates.<br>If the annotated coordinates are relative to the image size (as used in YOLO), set it to `rel`.<br>If the coordinates are absolute values, not depending to the image size, set it to `abs` |  `python pascalvoc.py --gt-coords rel` | `abs` |
 | `--det-coords` | reference of the detected bounding bounding box coordinates.<br>If the coordinates are relative to the image size (as used in YOLO), set it to `rel`.<br>If the coordinates are absolute values, not depending to the image size, set it to `abs` | `python pascalvoc.py --det-coords rel` | `abs` |
 | `--img-size ` | image size in the format `width,height` <int,int>.<br>Required if `--gt-coords` or `--det-coords` is set to `rel` | `python pascalvoc.py --img-size 600,400` |
@@ -147,3 +148,16 @@ and for the Detection xml files (these has to be created somehow though):
 
 <a name="asterisk"> </a>
 (**\***) set `-gtformat=xywh` and/or `-detformat=xywh` if format is `<left> <top> <width> <height>`. Set to `-gtformat=xyrb` and/or `-detformat=xyrb`  if format is `<left> <top> <right> <bottom>`.
+
+### Example of use
+
+The simplest example for the given folders would be:
+
+`python3 pascalvoc.py --accepted-classes person`
+
+which will evaluate the xml files in *detections-xml* over the xml files in *groundtruths-xml* subfolder.
+
+The above assumes two sub-folders *groundtruths-xml* and *detections-xml* containing xml files exist in the same folder of the project.
+
+`--accepted-classes person` is necessary because the examples given contains ground truth  samples of multiple classes but detection was performed on class person only.
+If run without this argument the per class AP would be correct for `person` but `0.0` for other classes and `mAP` would have taken into consideration all classes.
