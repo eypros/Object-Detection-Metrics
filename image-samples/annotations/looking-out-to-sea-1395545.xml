@@ -1,0 +1,26 @@
+<annotation>
+	<folder>image-samples</folder>
+	<filename>looking-out-to-sea-1395545.jpg</filename>
+	<path>image-samples/annotations/looking-out-to-sea-1395545.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>864</width>
+		<height>576</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>person</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>236</xmin>
+			<ymin>169</ymin>
+			<xmax>336</xmax>
+			<ymax>456</ymax>
+		</bndbox>
+	</object>
+</annotation>

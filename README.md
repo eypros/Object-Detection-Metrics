@@ -11,9 +11,11 @@ This a fork of the original **Metrics for object detection** developped by [Rafa
 - [How to use this project](#how-to-use-this-project)
     - [Text files](#text-files)
     - [Xml files](#xml-files)
-- [Optional arguments](#optional-arguments)
-- [Example of use](#examples-of-use)
- 
+- [Optional Optional arguments for pascalvoc](#optional-arguments-for-pascalvoc)
+- [Applying an object detector to an image folder](#applying-an-object-detector-to-an-image-folder)
+- [Optional arguments for detect_bboxes](#optional-arguments-for-detect_bboxes)
+- [Examples of use](#examples-of-use)
+
 ## What this project has to offer?
 
 This work was really helpful and clear but somehow lacked some features I wanted so I decided to expand it with some needed features. More precisely this repository can:
@@ -43,6 +45,16 @@ This project can be used to evaluate the object detection results relatively eas
 * Either txt files for Ground Truth and Detection
 * Or xml files for Ground Truth and Detection
 * Files for Ground Truth and Detection can be of different format.
+
+The project can use a (tensorflow) object detection model already trained to produce xml or txt files using:
+
+`detect_bboxes.py`
+
+After the bboxes have been saved to folder `pascalvoc.py` can be applied to evaluate the performance of the model.
+
+If you are interested in that feature see those
+[instructions](#applying-an-object-detector-to-an-image-folder).
+
 
 ### Text files
 
@@ -128,7 +140,7 @@ The main parts of the xml file that are used in this process are:
 and for the Detection xml files (these has to be created somehow though):
 * `object/score` which corresponds to the confidence of the detected bbox.
 
-### Optional arguments:
+### Optional arguments for pascalvoc:
 
 | Argument &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Description | Example | Default |
 |:-------------:|:-----------:|:-----------:|:-----------:|
@@ -149,9 +161,33 @@ and for the Detection xml files (these has to be created somehow though):
 <a name="asterisk"> </a>
 (**\***) set `-gtformat=xywh` and/or `-detformat=xywh` if format is `<left> <top> <width> <height>`. Set to `-gtformat=xyrb` and/or `-detformat=xyrb`  if format is `<left> <top> <right> <bottom>`.
 
-### Example of use
+### Applying an object detector to an image folder
 
-The simplest example for the given folders would be:
+The project can use an (already trained) object detector to predict bboxes on an image folder. In order to apply this feature you need:
+
+- A trained object detection model (the frozen one to be morer specific)
+- A label map which maps objects ids with their respective (human readable) labels
+
+The output can be either txt or xml files.
+
+Currently only tensorflow object detector are supported.
+
+### Optional arguments for detect_bboxes:
+
+| Argument &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Description | Example | Default |
+|:-------------:|:-----------:|:-----------:|:-----------:|
+| `-h`,<br>`--help ` |	show help message | `python detect_bboxes.py -h` | |
+|  `-v`,<br>`--version` | check version | `python detect_bboxes.py -v` | |
+| `-i`,<br>`--image_path` | folder containing the images to apply the detection model | `python detect_bboxes.py -i /home/whatever/my_images/` | |
+| `-m`,<br>`--model-path` | folder containing the trained model path. This is the folder where the "frozen_inference_graph.pb" resides in other words. | `python detect_bboxes.py -m /home/whatever/my_model/` | |
+| `-l`,<br>`--label-map-path` | the path to the label map for this model. | `python detect_bboxes.py -l /path/to/label_map` | |
+| `--score-thres` | the threshold under which the bboxes will be ignored and not written to the output files. Default value is 0.0 | `python detect_bboxes.py --score-thres=0.2` | `0.0` |
+| `--accepted-classes` | A list with all classes to be taken into consideration when writing the bboxes in files. Default value is an empty list which corresponds to take into consideration all available classes | `python detect_bboxes.py --accepted-classes person car` | empty list, which means all samples are treated | |
+| `-t`,<br>`--txt_file` | Whether output file will be xml or txt. If not set xml is used (default). |  `python detect_bboxes.py --txt_file` | xml |
+
+### Examples of use
+
+- The simplest example for the given folders would be:
 
 `python3 pascalvoc.py --accepted-classes person`
 
@@ -161,3 +197,9 @@ The above assumes two sub-folders *groundtruths-xml* and *detections-xml* contai
 
 `--accepted-classes person` is necessary because the examples given contains ground truth  samples of multiple classes but detection was performed on class person only.
 If run without this argument the per class AP would be correct for `person` but `0.0` for other classes and `mAP` would have taken into consideration all classes.
+
+- To run `detect_bboxes` the simpler example would be:
+
+`python3 create_detection_bboxes.py -i image-samples/ -m /path/to/model -l path/to/label_map.pbtxt`
+
+which will produce xml files to a subfolder of the image folder.
