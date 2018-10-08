@@ -50,7 +50,12 @@ This project can be used to evaluate the object detection results relatively eas
 1. Use text (or xml) files for the ground truth bboxes and use an object detection model to create (predict) bboxes over an image folder. In this case the proposed method would be [`detect_bboxes`](#applying-an-object-detector-to-an-image-folder) followed by [`pascalvoc`](#evaluation-using-pascalvoc).
 In this case `detect_bboxes` is used to create the bboxes in a folder and then the process is identical to the previous case.
 
-1. The final option includes the use of txt (or xml) files for bboxes and application of [`eval_model`]
+1. The final option includes the use of txt (or xml) files for bboxes and application of [`eval_model`](#direct-evaluation-of-an-object-detector-over-an-image-folder).
+
+
+## Evaluation using pascalvoc
+
+This case uses already present bboxes in text or xml files.
 
 In order to evaluate the results you need:
 
@@ -58,18 +63,6 @@ In order to evaluate the results you need:
 * Or xml files for Ground Truth and Detection
 * Files for Ground Truth and Detection can be of different format.
 
-The project can use a (tensorflow) object detection model already trained to produce xml or txt files using:
-
-`detect_bboxes.py`
-
-After the bboxes have been saved to folder `pascalvoc.py` can be applied to evaluate the performance of the model.
-
-If you are interested in that feature see those
-[instructions](#applying-an-object-detector-to-an-image-folder).
-
-## Evaluation using pascalvoc
-
-This case uses already present bboxes in text or xml files.
 
 ### Examples of use
 
@@ -193,16 +186,21 @@ The project can use an (already trained) object detector to predict bboxes on an
 - A trained object detection model (the frozen one to be morer specific)
 - A label map which maps objects ids with their respective (human readable) labels
 
-The output can be either txt or xml files.
 
-Currently only tensorflow object detector are supported.
+The steps required are roughly:
+
+- The project can use a (tensorflow) object detection model already trained to produce xml or txt files using:
+`detect_bboxes.py`. Currently only tensorflow object detector are supported.
+- The output can be either txt or xml files.
+- After the bboxes have been saved to folder `pascalvoc.py` can be applied to evaluate the performance of the model.
+
 
 ### Examples of use
 
 `--accepted-classes person` is necessary because the examples given contains ground truth  samples of multiple classes but detection was performed on class person only.
 If run without this argument the per class AP would be correct for `person` but `0.0` for other classes and `mAP` would have taken into consideration all classes.
 
-- To run `detect_bboxes` the simpler example would be:
+To run `detect_bboxes` the simpler example would be:
 
 `python3 create_detection_bboxes.py -i image-samples/ -m /path/to/model -l path/to/label_map.pbtxt`
 
@@ -232,12 +230,28 @@ As regards performance, the 3 methods use essentially the same tools so besides 
 
 ### Examples of use
 
+The simpler use would be:
 
-`--accepted-classes person` is necessary because the examples given contains ground truth  samples of multiple classes but detection was performed on class person only.
-If run without this argument the per class AP would be correct for `person` but `0.0` for other classes and `mAP` would have taken into consideration all classes.
+`python3 eval_model.py -g path/to/gt -i path/to/image_folder -m path/to/model -l path/to/label_map`
 
-- To run `detect_bboxes` the simpler example would be:
+while a potentially more versatile use (applied for only classes `person` and `car`) and just print the mAP (without plotting anything):
 
-`python3 create_detection_bboxes.py -i image-samples/ -m /path/to/model -l path/to/label_map.pbtxt`
+`python3 eval_model.py -g path/to/gt -i path/to/image_folder -m path/to/model -l path/to/label_map -n --accepted-classes person car`
 
-which will produce xml files to a subfolder of the image folder.
+### Optional arguments for eval_model:
+
+| Argument &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Description | Example | Default |
+|:-------------:|:-----------:|:-----------:|:-----------:|
+| `-h`,<br>`--help ` |	show help message | `python eval_model.py -h` | |
+| `-v`,<br>`--version` | check version | `python eval_model.py -v` | |
+| `-g`,<br>`--gt-folder` | folder that contains the ground truth bounding boxes files | `python eval_model.py -g /home/whatever/my_groundtruths/` | `/Object-Detection-Metrics/groundtruths-xml/`|
+| `-t`,<br>`--threshold` | IOU thershold that tells if a detection is TP or FP | `python eval_model.py -t 0.75` | `0.50` |
+| `--gt-format` | format of the coordinates of the ground truth bounding boxes | `python eval_model.py --gt-format xyrb` | `xyrb` |
+| `--gt-coords` | reference of the ground truth bounding bounding box coordinates.<br>If the annotated coordinates are relative to the image size (as used in YOLO), set it to `rel`.<br>If the coordinates are absolute values, not depending to the image size, set it to `abs` |  `python eval_model.py --gt-coords rel` | `abs` |
+| `--img-size ` | image size in the format `width,height` <int,int>.<br>Required if `--gt-coords` or `--det-coords` is set to `rel` | `python eval_model.py --img-size 600,400` |
+| `-s`,<br>`--savepath` | folder where the plots are saved | `python eval_model.py -s /home/whatever/my_results/` | `Object-Detection-Metrics/results/` |
+| `-n`,<br>`--noplot` | if present no plot is shown during execution | `python eval_model.py -n` | not presented.<br>Therefore, plots are shown |
+| `-m`,<br>`--model-path` | folder containing the trained model path. This is the folder where the "frozen_inference_graph.pb" resides in other words. | `python eval_model.py -m /home/whatever/my_model/` | |
+| `-l`,<br>`--label-map-path` | the path to the label map for this model. | `python eval_model.py -l /path/to/label_map` | |
+| `--score-thres` | the threshold under which the bboxes will be ignored and not written to the output files. Default value is 0.0 | `python eval_model.py --score-thres=0.2` | `0.0` |
+| `--accepted-classes` | A list with all classes to be taken into consideration when writing the bboxes in files. Default value is an empty list which corresponds to take into consideration all available classes | `python detect_bboxes.py --accepted-classes person car` | empty list, which means all samples are treated | |
