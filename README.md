@@ -25,6 +25,7 @@ This work was really helpful and clear but somehow lacked some features I wanted
     * Xml format (xml)
 * It can use only members of specific classes instead of using all available classes.
 * The input format is derived by the extension of files in the provided folders.
+* The project offers the options of using a model to detect object in image folder and produce bbox files (xml or txt).
 * My intension is to provide also a 3<sup>rd</sup> option to provide bounding boxes by using a trained object detection model on some random images.
     
 The ability to read xml derives from the way tensorflow annotated the images in object detection module. So, it seems natural to use xml files which are already annotated in a natural manner.
