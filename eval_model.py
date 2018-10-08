@@ -111,6 +111,7 @@ def get_arguments():
     parser.add_argument(
         '--accepted-classes',
         default='',
+        nargs='+',
         help='A list with all classes to be taken into consideration when writing the bboxes in files.\n'
              'Default value is an empty list which corresponds to take into consideration all available classes')
 

@@ -9,11 +9,13 @@ This a fork of the original **Metrics for object detection** developped by [Rafa
 - [What this project has to offer?](#what-this-project-has-to-offer)
     - [Other changes in the original project](#other-changes-in-the-original-project)
 - [How to use this project](#how-to-use-this-project)
+- [Evaluation using pascalvoc](#evaluation-using-pascalvoc)
     - [Text files](#text-files)
     - [Xml files](#xml-files)
 - [Optional Optional arguments for pascalvoc](#optional-arguments-for-pascalvoc)
 - [Applying an object detector to an image folder](#applying-an-object-detector-to-an-image-folder)
 - [Optional arguments for detect_bboxes](#optional-arguments-for-detect_bboxes)
+- [Direct evaluation of an object detector over an image folder](#direct-evaluation-of-an-object-detector-over-an-image-folder)
 - [Examples of use](#examples-of-use)
 
 ## What this project has to offer?
@@ -26,7 +28,7 @@ This work was really helpful and clear but somehow lacked some features I wanted
 * It can use only members of specific classes instead of using all available classes.
 * The input format is derived by the extension of files in the provided folders.
 * The project offers the options of using a model to detect object in image folder and produce bbox files (xml or txt).
-* My intension is to provide also a 3<sup>rd</sup> option to provide bounding boxes by using a trained object detection model on some random images.
+* (Fixed) The project provides also a 3<sup>rd</sup> option to get the detection bounding boxes by using a trained object detection model on some random images folder.
     
 The ability to read xml derives from the way tensorflow annotated the images in object detection module. So, it seems natural to use xml files which are already annotated in a natural manner.
 
@@ -41,7 +43,16 @@ The functionality has not changed apart from an extra option added (*- -accepted
 
 ## How to use this project
 
-This project can be used to evaluate the object detection results relatively easy. In order to evaluate the results you need:
+This project can be used to evaluate the object detection results relatively easy. Currently, there are 3 (overlapping) ways to evaluate a model.
+
+1. Use text (or xml) files containing the bboxes of both ground truth and detection cases. In this case the proposed method is [`pascalvoc`](#evaluation-using-pascalvoc).
+
+1. Use text (or xml) files for the ground truth bboxes and use an object detection model to create (predict) bboxes over an image folder. In this case the proposed method would be [`detect_bboxes`](#applying-an-object-detector-to-an-image-folder) followed by [`pascalvoc`](#evaluation-using-pascalvoc).
+In this case `detect_bboxes` is used to create the bboxes in a folder and then the process is identical to the previous case.
+
+1. The final option includes the use of txt (or xml) files for bboxes and application of [`eval_model`]
+
+In order to evaluate the results you need:
 
 * Either txt files for Ground Truth and Detection
 * Or xml files for Ground Truth and Detection
@@ -56,6 +67,19 @@ After the bboxes have been saved to folder `pascalvoc.py` can be applied to eval
 If you are interested in that feature see those
 [instructions](#applying-an-object-detector-to-an-image-folder).
 
+## Evaluation using pascalvoc
+
+This case uses already present bboxes in text or xml files.
+
+### Examples of use
+
+The simplest example for the given folders would be:
+
+`python3 pascalvoc.py --accepted-classes person`
+
+which will evaluate the xml files in *detections-xml* over the xml files in *groundtruths-xml* subfolder.
+
+The above assumes two sub-folders *groundtruths-xml* and *detections-xml* containing xml files exist in the same folder of the project.
 
 ### Text files
 
@@ -162,7 +186,7 @@ and for the Detection xml files (these has to be created somehow though):
 <a name="asterisk"> </a>
 (**\***) set `-gtformat=xywh` and/or `-detformat=xywh` if format is `<left> <top> <width> <height>`. Set to `-gtformat=xyrb` and/or `-detformat=xyrb`  if format is `<left> <top> <right> <bottom>`.
 
-### Applying an object detector to an image folder
+## Applying an object detector to an image folder
 
 The project can use an (already trained) object detector to predict bboxes on an image folder. In order to apply this feature you need:
 
@@ -172,6 +196,17 @@ The project can use an (already trained) object detector to predict bboxes on an
 The output can be either txt or xml files.
 
 Currently only tensorflow object detector are supported.
+
+### Examples of use
+
+`--accepted-classes person` is necessary because the examples given contains ground truth  samples of multiple classes but detection was performed on class person only.
+If run without this argument the per class AP would be correct for `person` but `0.0` for other classes and `mAP` would have taken into consideration all classes.
+
+- To run `detect_bboxes` the simpler example would be:
+
+`python3 create_detection_bboxes.py -i image-samples/ -m /path/to/model -l path/to/label_map.pbtxt`
+
+which will produce xml files to a subfolder of the image folder.
 
 ### Optional arguments for detect_bboxes:
 
@@ -186,15 +221,17 @@ Currently only tensorflow object detector are supported.
 | `--accepted-classes` | A list with all classes to be taken into consideration when writing the bboxes in files. Default value is an empty list which corresponds to take into consideration all available classes | `python detect_bboxes.py --accepted-classes person car` | empty list, which means all samples are treated | |
 | `-t`,<br>`--txt_file` | Whether output file will be xml or txt. If not set xml is used (default). |  `python detect_bboxes.py --txt_file` | xml |
 
+
+## Direct evaluation of an object detector over an image folder
+
+The 3<sup>rd</sup> option uses an object detector over an image folder for the evaluation of the same model performance.
+The difference with the 2<sup>nd</sup> option is that in this scenario no intermediate files are created and there is just the output of the evaluation.
+Also this mode takes the more arguments since it combines elements from both previous cases.
+
+As regards performance, the 3 methods use essentially the same tools so besides the automation and file writing overhead gained in the 3<sup>rd</sup> case no other differences exists.
+
 ### Examples of use
 
-- The simplest example for the given folders would be:
-
-`python3 pascalvoc.py --accepted-classes person`
-
-which will evaluate the xml files in *detections-xml* over the xml files in *groundtruths-xml* subfolder.
-
-The above assumes two sub-folders *groundtruths-xml* and *detections-xml* containing xml files exist in the same folder of the project.
 
 `--accepted-classes person` is necessary because the examples given contains ground truth  samples of multiple classes but detection was performed on class person only.
 If run without this argument the per class AP would be correct for `person` but `0.0` for other classes and `mAP` would have taken into consideration all classes.
