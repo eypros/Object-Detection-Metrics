@@ -7,16 +7,18 @@ This a fork of the original **Metrics for object detection** developped by [Rafa
 
 - [Motivation](#metrics-for-object-detection-v2)
 - [What this project has to offer?](#what-this-project-has-to-offer)
-    - [Other changes in the original project](#other-changes-in-the-original-project)
 - [How to use this project](#how-to-use-this-project)
 - [Evaluation using pascalvoc](#evaluation-using-pascalvoc)
+    - [Examples of use](#examples-of-use)
     - [Text files](#text-files)
     - [Xml files](#xml-files)
-- [Optional Optional arguments for pascalvoc](#optional-arguments-for-pascalvoc)
+    - [Optional Optional arguments for pascalvoc](#optional-arguments-for-pascalvoc)
 - [Applying an object detector to an image folder](#applying-an-object-detector-to-an-image-folder)
-- [Optional arguments for detect_bboxes](#optional-arguments-for-detect_bboxes)
+    - [Examples of use](#examples-of-use-1)
+    - [Optional arguments for detect_bboxes](#optional-arguments-for-detect_bboxes)
 - [Direct evaluation of an object detector over an image folder](#direct-evaluation-of-an-object-detector-over-an-image-folder)
-- [Examples of use](#examples-of-use)
+    - [Optional arguments for eval_model](#Optional-arguments-for-eval_model)
+    - [Examples of use](#examples-of-use-2)
 
 ## What this project has to offer?
 
@@ -29,17 +31,10 @@ This work was really helpful and clear but somehow lacked some features I wanted
 * The input format is derived by the extension of files in the provided folders.
 * The project offers the options of using a model to detect object in image folder and produce bbox files (xml or txt).
 * (Fixed) The project provides also a 3<sup>rd</sup> option to get the detection bounding boxes by using a trained object detection model on some random images folder.
-    
+
+All 3 cases of course require the existence of ground truth files (txt or xml).
+
 The ability to read xml derives from the way tensorflow annotated the images in object detection module. So, it seems natural to use xml files which are already annotated in a natural manner.
-
-### Other changes in the original project
-
-The code has been modified up to a degree to follow some python conventions. Examples include:
-* The use of short options with only 1 sinlge character.
-* Organize code with more functions.
-* Separate functions to handle different input format.
-
-The functionality has not changed apart from an extra option added (*- -accepted-classes*) to provide the option of applying metric to members of specific classes and of course the conversion of other options to more pythonic accepted standards.
 
 ## How to use this project
 
@@ -51,6 +46,7 @@ This project can be used to evaluate the object detection results relatively eas
 In this case `detect_bboxes` is used to create the bboxes in a folder and then the process is identical to the previous case.
 
 1. The final option includes the use of txt (or xml) files for bboxes and application of [`eval_model`](#direct-evaluation-of-an-object-detector-over-an-image-folder).
+This option is the more discrete leaving no intermediate outputs.
 
 
 ## Evaluation using pascalvoc
