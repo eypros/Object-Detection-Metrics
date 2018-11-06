@@ -266,7 +266,18 @@ def get_bounding_boxes_by_detection(model_path, label_map_path, image_path, scor
                                     all_classes=None,
                                     accepted_classes=None,
                                     img_size=(0, 0)):
-    """Read txt files containing bounding boxes (ground truth and detections)."""
+    """
+    Apply object detection to images and return the detected bounding boxes
+    :param model_path:
+    :param label_map_path:
+    :param image_path:
+    :param score_thres:
+    :param all_bounding_boxes:
+    :param all_classes:
+    :param accepted_classes:
+    :param img_size:
+    :return:
+    """
     if accepted_classes is None:
         accepted_classes = []
     if all_bounding_boxes is None:
