@@ -251,3 +251,4 @@ while a potentially more versatile use (applied for only classes `person` and `c
 | `-l`,<br>`--label-map-path` | the path to the label map for this model. | `python eval_model.py -l /path/to/label_map` | |
 | `--score-thres` | the threshold under which the bboxes will be ignored and not written to the output files. Default value is 0.0 | `python eval_model.py --score-thres=0.2` | `0.0` |
 | `--accepted-classes` | A list with all classes to be taken into consideration when writing the bboxes in files. Default value is an empty list which corresponds to take into consideration all available classes | `python detect_bboxes.py --accepted-classes person car` | empty list, which means all samples are treated | |
+| `--merged-classes` | A path to a json file containing a dict for merging classes in ground truth bounding boxes\n' | `python detect_bboxes.py --merged-classes path/to/merged_class.json` | empty dict, which means no merging occurs | |
