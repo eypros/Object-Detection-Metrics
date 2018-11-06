@@ -7,9 +7,9 @@
 #  * Average Precision (AP)         ---->       used by VOC PASCAL 2012)                  #
 #                                                                                         #
 # Developed by: George Orfanidis (g.orfanidis@iti.gr)                                     #
-#        Last modification: 5th Oct 2018                                                  #
+#        Last modification: 6th Nov 2018                                                  #
 ###########################################################################################
-
+import json
 import os
 import argparse
 # from argparse import RawTextHelpFormatter
@@ -45,7 +45,7 @@ def get_arguments():
         description='This project applies the most popular metrics used to evaluate object detection '
                     'algorithms.\nThe current implemention runs the Pascal VOC metrics.\nFor further references, '
                     'please check:\nhttps://github.com/rafaelpadilla/Object-Detection-Metrics',
-        epilog="Developed by: George Orfanidis (g.orfanidis@it.gr)")
+        epilog="Developed by: George Orfanidis (g.orfanidis@iti.gr)")
     # formatter_class=RawTextHelpFormatter)
     parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + VERSION)
     parser.add_argument(
@@ -114,6 +114,12 @@ def get_arguments():
         nargs='+',
         help='A list with all classes to be taken into consideration when writing the bboxes in files.\n'
              'Default value is an empty list which corresponds to take into consideration all available classes')
+    parser.add_argument(
+        '--merged-classes',
+        metavar='',
+        help='A path to a json file containing a dict for merging classes in ground truth bounding boxes\n'
+             'If GT bounding boxes contain "bike" and "motorcycle" but model was trained on a merged "moto-bike"\n'
+             'a dict {\'bike\': \'moto-bike\', \'motorcycle\': \'moto-bike\' should be used.')
 
     args = parser.parse_args()
 
@@ -225,9 +231,14 @@ def get_bounding_boxes(directory,
                        coordType,
                        all_bounding_boxes=None,
                        all_classes=None,
-                       accepted_classes=[],
-                       imgSize=(0, 0)):
+                       accepted_classes=None,
+                       imgSize=(0, 0),
+                       merged_classes=None):
     """Read txt files containing bounding boxes (ground truth and detections)."""
+    if merged_classes is None:
+        merged_classes = {}
+    if accepted_classes is None:
+        accepted_classes = []
     if all_bounding_boxes is None:
         all_bounding_boxes = BoundingBoxes()
     if all_classes is None:
@@ -242,7 +253,8 @@ def get_bounding_boxes(directory,
         for f in files:
             all_bounding_boxes, all_classes = read_xml_file(os.path.join(directory, f), is_gt, coordType, bbFormat,
                                                             all_bounding_boxes=all_bounding_boxes,
-                                                            all_classes=all_classes, accepted_classes=accepted_classes)
+                                                            all_classes=all_classes, accepted_classes=accepted_classes,
+                                                            merged_classes=merged_classes)
 
     else:
         files.sort()
@@ -257,7 +269,8 @@ def get_bounding_boxes(directory,
             all_bounding_boxes, all_classes = read_txt_file(f, is_gt, coordType, bbFormat,
                                                             all_bounding_boxes=all_bounding_boxes,
                                                             all_classes=all_classes,
-                                                            accepted_classes=accepted_classes, imgSize=imgSize)
+                                                            accepted_classes=accepted_classes, imgSize=imgSize,
+                                                            merged_classes=merged_classes)
     return all_bounding_boxes, all_classes
 
 
@@ -465,7 +478,7 @@ def get_label_map(label_maps_path, name_to_id=True):
 
 
 def read_txt_file(file_path, is_gt, coordType, bbFormat, all_bounding_boxes=None, all_classes=None,
-                  accepted_classes=[], imgSize=(0, 0)):
+                  accepted_classes=None, imgSize=(0, 0)):
     """
     Reads a txt file to get all the information needed (bbounding boxes etc)
     :param file_path:
@@ -478,6 +491,8 @@ def read_txt_file(file_path, is_gt, coordType, bbFormat, all_bounding_boxes=None
     :param imgSize:
     :return:
     """
+    if accepted_classes is None:
+        accepted_classes = []
     nameOfImage = file_path.replace(".txt", "")
     fh1 = open(file_path, "r")
     for line in fh1:
@@ -533,7 +548,7 @@ def read_txt_file(file_path, is_gt, coordType, bbFormat, all_bounding_boxes=None
 
 
 def read_xml_file(file_path, is_gt, coordType, bbFormat, all_bounding_boxes=None, all_classes=None,
-                  accepted_classes=[]):
+                  accepted_classes=None, merged_classes=list()):
     """
     Reads an xml file
     :param file_path:
@@ -545,13 +560,28 @@ def read_xml_file(file_path, is_gt, coordType, bbFormat, all_bounding_boxes=None
     :param accepted_classes:
     :return:
     """
+    if accepted_classes is None:
+        accepted_classes = []
     tree = ET.parse(file_path)
     filename = tree.find('filename').text.rsplit('.', 1)[0]
     img_size = tree.find('size')
     objects = tree.findall('object')
     for i, obj in enumerate(objects):
-        if accepted_classes and obj.find('name').text not in accepted_classes:
-            continue
+        # if accepted_classes and obj.find('name').text not in accepted_classes:
+        # if accepted_classes and (obj['name'] not in accepted_classes or (True if (obj['name'] in merged_classes and
+        #                                                                           merged_classes[obj['name']] not in
+        #                                                                           merged_classes) else False)):
+        # print(obj.find('name').text)
+        if accepted_classes and (obj.find('name').text not in accepted_classes and
+                                 (False if (obj.find('name').text in merged_classes and merged_classes[obj.find('name').text] in accepted_classes) else True)):
+        # if accepted_classes and (obj.find('name').text not in accepted_classes and (False if (obj.find('name').text in
+        #                                                                             merged_classes and
+        #                                                                             merged_classes[
+        #                                                                                 obj.find('name').text]
+        #                                                                             not in accepted_classes) else True)):
+                continue
+        if obj.find('name').text in merged_classes:
+            obj.find('name').text = merged_classes[obj.find('name').text]
         if not is_gt:
             bb = BoundingBox(
                 filename,
@@ -647,6 +677,11 @@ def main():
     iou_threshold = args.iouThreshold
     save_path = args.savePath
     accepted_classes = args.accepted_classes
+    if args.merged_classes:
+        with open(args.merged_classes)  as fp:
+            merged_classes = json.load(fp)
+    else:
+        merged_classes = None
 
     # Create directory to save results
     shutil.rmtree(save_path, ignore_errors=True)  # Clear folder
@@ -655,7 +690,8 @@ def main():
     show_plot = args.showPlot
 
     all_bounding_boxes, all_classes = get_bounding_boxes(
-        gt_folder, True, gt_format, gt_coord_type, accepted_classes=accepted_classes, imgSize=img_size)
+        gt_folder, True, gt_format, gt_coord_type, accepted_classes=accepted_classes, imgSize=img_size,
+        merged_classes=merged_classes)
     all_bounding_boxes, all_classes, det_time = get_bounding_boxes_by_detection(args.model_path, args.label_map_path,
                                                                                 args.image_path, args.score_thres,
                                                                                 all_bounding_boxes, all_classes,
