@@ -363,8 +363,9 @@ def get_bounding_boxes_by_detection(model_path, label_map_path, image_path, scor
                     all_bounding_boxes.addBoundingBox(bb)
                     all_classes.add(categories_dict[labels_det_ids[i]])
     end_det = time.time() - start_det
+    fps = len(image_list) / end_det
 
-    return all_bounding_boxes, all_classes, end_det
+    return all_bounding_boxes, all_classes, end_det, fps
 
 
 def filter_bboxes_by_score(boxes_det, scores, classes, image_np, score_thres=0.5, width_first=True):
@@ -573,13 +574,9 @@ def read_xml_file(file_path, is_gt, coordType, bbFormat, all_bounding_boxes=None
         #                                                                           merged_classes) else False)):
         # print(obj.find('name').text)
         if accepted_classes and (obj.find('name').text not in accepted_classes and
-                                 (False if (obj.find('name').text in merged_classes and merged_classes[obj.find('name').text] in accepted_classes) else True)):
-        # if accepted_classes and (obj.find('name').text not in accepted_classes and (False if (obj.find('name').text in
-        #                                                                             merged_classes and
-        #                                                                             merged_classes[
-        #                                                                                 obj.find('name').text]
-        #                                                                             not in accepted_classes) else True)):
-                continue
+                                 (False if (obj.find('name').text in merged_classes and
+                                            merged_classes[obj.find('name').text] in accepted_classes) else True)):
+            continue
         if obj.find('name').text in merged_classes:
             obj.find('name').text = merged_classes[obj.find('name').text]
         if not is_gt:
@@ -668,7 +665,8 @@ def main():
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
     args = get_arguments()
     args = validate_args(args)
-    print('Starting evaluation of object detection model in {} for images in {}...'.format(args.model_path, args.image_path))
+    print('Starting evaluation of object detection model in {} for images in {}...'.format(args.model_path,
+                                                                                           args.image_path))
 
     gt_folder = args.gtFolder
     gt_format = args.gtFormat
@@ -692,11 +690,12 @@ def main():
     all_bounding_boxes, all_classes = get_bounding_boxes(
         gt_folder, True, gt_format, gt_coord_type, accepted_classes=accepted_classes, imgSize=img_size,
         merged_classes=merged_classes)
-    all_bounding_boxes, all_classes, det_time = get_bounding_boxes_by_detection(args.model_path, args.label_map_path,
-                                                                                args.image_path, args.score_thres,
-                                                                                all_bounding_boxes, all_classes,
-                                                                                accepted_classes,
-                                                                                img_size)
+    all_bounding_boxes, all_classes, det_time, fps = get_bounding_boxes_by_detection(args.model_path,
+                                                                                     args.label_map_path,
+                                                                                     args.image_path, args.score_thres,
+                                                                                     all_bounding_boxes, all_classes,
+                                                                                     accepted_classes,
+                                                                                     img_size)
     all_classes = list(all_classes)
     all_classes.sort()
 
@@ -744,7 +743,7 @@ def main():
     f.write('\n\n\nmAP: %s' % mAP_str)
     f.close()
     end = time.time()
-    print('Elapsed time in detection was {:2.3f} secs'.format(det_time))
+    print('Elapsed time in detection was {:2.3f} secs at {:2.3f} fps'.format(det_time, fps))
     print('Total elapsed time was {:2.3f} secs'.format(end - start))
 
 
