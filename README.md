@@ -160,8 +160,8 @@ and for the Detection xml files (these has to be created somehow though):
 |:-------------:|:-----------:|:-----------:|:-----------:|
 | `-h`,<br>`--help ` |	show help message | `python pascalvoc.py -h` | |
 |  `-v`,<br>`--version` | check version | `python pascalvoc.py -v` | |
-| `-g`,<br>`--gt-folder` | folder that contains the ground truth bounding boxes files | `python pascalvoc.py -g /home/whatever/my_groundtruths/` | `/Object-Detection-Metrics/groundtruths-xml/`|
-| `-d`,<br>`--det-folder` | folder that contains your detected bounding boxes files | `python pascalvoc.py -d /home/whatever/my_detections/` | `/Object-Detection-Metrics/detections-xml/`|
+| `-g`,<br>`--gt-folder` | folder that contains the ground truth bounding boxes files | `python pascalvoc.py -g /home/whatever/my_groundtruths/` | `Object-Detection-Metrics/groundtruths-xml/`|
+| `-d`,<br>`--det-folder` | folder that contains your detected bounding boxes files | `python pascalvoc.py -d /home/whatever/my_detections/` | `Object-Detection-Metrics/detections-xml/`|
 | `-t`,<br>`--threshold` | IOU thershold that tells if a detection is TP or FP | `python pascalvoc.py -t 0.75` | `0.50` |
 | `--gt-format` | format of the coordinates of the ground truth bounding boxes [**\***](#asterisk) | `python pascalvoc.py --gt-format xyrb` | `xyrb` |
 | `--det-format` | format of the coordinates of the detected bounding boxes [**\***](#asterisk) | `python pascalvoc.py --det-format xyrb` | `xyrb` | |

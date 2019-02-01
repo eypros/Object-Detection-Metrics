@@ -81,7 +81,9 @@ def get_arguments():
         metavar='',
         help='image size. Required if -gtcoords or -detcoords are \'rel\'')
     parser.add_argument(
-        '-s', '--save-path', dest='savePath', metavar='', help='folder where the plots are saved')
+        '-s', '--save-path', dest='savePath', metavar='',
+        help='folder where the plots are saved. If not provided results will be saved to a subfolder '
+             '"results" of programs base folder')
     parser.add_argument(
         '-n',
         '--no-plot',
@@ -704,6 +706,7 @@ def main():
     f.write('https://github.com/rafaelpadilla/Object-Detection-Metrics\n\n\n')
     f.write('Average Precision (AP), Precision and Recall per class:')
 
+    print('Model: {}'.format(args.model_path))
     evaluator = Evaluator()
     acc_AP = 0
     valid_classes = 0
